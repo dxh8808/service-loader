@@ -1,0 +1,1 @@
+include ':service-loader', ':service-loader-annotation', ':service-loader-compiler-app', ':service-loader-compiler', ':sample', ':sample-module', ':sample-module-2', ':sample-sdk'
