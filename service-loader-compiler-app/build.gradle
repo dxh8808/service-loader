@@ -4,10 +4,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.auto.service:auto-service:1.0-rc3'
     compile 'com.squareup:javapoet:1.9.0'
-    compile 'com.google.guava:guava:latest'
+    compile 'com.google.guava:guava:22.0'
     compile 'com.google.auto:auto-common:0.10'
     compile project(":service-loader-annotation")
 }
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+apply from : 'http://git.sdp.nd/common-ui/common-ui-wiki/raw/master/simple-upload.gradle'

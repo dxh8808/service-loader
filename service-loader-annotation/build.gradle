@@ -7,3 +7,5 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+apply from : 'http://git.sdp.nd/common-ui/common-ui-wiki/raw/master/simple-upload.gradle'
