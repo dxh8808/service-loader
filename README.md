@@ -24,8 +24,8 @@ public class ImplA implements Inteface {
 
 build.gradle
 ```Gradle
-compile project(":service-loader-annotation")
-annotationProcessor project(":service-loader-compiler")
+compile "com.nd.sdp.android.serviceloader:service-loader-annotation:1.0.0-develop-SNAPSHOT"
+annotationProcessor "com.nd.sdp.android.serviceloader:service-loader-compiler:1.0.0-develop-SNAPSHOT"
 ```
 
 ModuleB
@@ -42,8 +42,8 @@ public class ImplB implements Inteface {
 
 build.gradle
 ```Gradle
-compile project(":service-loader-annotation")
-annotationProcessor project(":service-loader-compiler")
+compile "com.nd.sdp.android.serviceloader:service-loader-annotation:1.0.0-develop-SNAPSHOT"
+annotationProcessor "com.nd.sdp.android.serviceloader:service-loader-compiler:1.0.0-develop-SNAPSHOT"
 ```
 
 Application
@@ -62,5 +62,6 @@ while (iterator.hasNext()) {
 build.gradle
 
 ```Gradle
-annotationProcessor project(":service-loader-compiler-app")
+compile "com.nd.sdp.android.serviceloader:service-loader:1.0.0-develop-SNAPSHOT"
+annotationProcessor "com.nd.sdp.android.serviceloader:service-loader-compiler-app:1.0.0-develop-SNAPSHOT"
 ```
