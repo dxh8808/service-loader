@@ -18,7 +18,7 @@ import java.util.ServiceConfigurationError;
  * AnnotationServiceLoader
  * Created by Young on 2018/4/25.
  */
-@SuppressWarnings({"unchecked", "WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 @Keep
 public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
 
@@ -174,7 +174,7 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
     }
 
     private IServiceProvider<S> getServiceProvider() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName("com.nd.sdp.android.serviceloader.internal.Provider_" + service.getName().replace(".", "_"));
+        @SuppressWarnings("unchecked") Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName("com.nd.sdp.android.serviceloader.internal.Provider_" + service.getName().replace(".", "_"));
         return serviceProviderClass.newInstance();
     }
 }
