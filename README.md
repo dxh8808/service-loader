@@ -68,7 +68,7 @@ annotationProcessor "com.nd.sdp.android.serviceloader:service-loader-compiler-ap
 
 ### Get Implementation By Name
 
-If you want to get an implementation by Name , you can specify the implementation name by @Service , such as :
+If you want to get an implementation by Name , you can specify the implementation name by @ServiceName , such as :
 
 ## Module B
 
