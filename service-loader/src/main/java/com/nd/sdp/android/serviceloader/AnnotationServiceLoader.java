@@ -2,12 +2,14 @@ package com.nd.sdp.android.serviceloader;
 
 import android.support.annotation.Keep;
 
-import com.nd.sdp.android.serviceloader.internal.IServicePool;
+import com.nd.sdp.android.serviceloader.annotation.ServiceName;
+import com.nd.sdp.android.serviceloader.exception.FetchException;
+import com.nd.sdp.android.serviceloader.internal.IServiceProvider;
 
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
@@ -22,30 +24,25 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
 
     private final Class<S> service;
 
-    private LinkedHashMap<Class<? extends S>, S> providers = new LinkedHashMap<>();
+    private Collection<Class<? extends S>> classes;
+
+    private Map<String, Class<? extends S>> classNameMap;
 
     private LazyIterator lookupIterator;
-    private IServicePool mServicePool;
+
+    private AnnotationServiceLoader(Class<S> svc) {
+        service = requireNonNull(svc, "Service interface cannot be null");
+    }
 
     public void reload() {
-        providers.clear();
         try {
-            mServicePool = (IServicePool) Class.forName("com.nd.sdp.android.serviceloader.internal.ServicePool")
-                    .newInstance();
-            lookupIterator = new LazyIterator(service, mServicePool);
+            IServiceProvider<S> serviceProvider = getServiceProvider();
+            classes = serviceProvider.provide();
+            lookupIterator = new LazyIterator(service);
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServiceConfigurationError(service.getName() + ": " + e.getMessage());
         }
-    }
-
-    public IServicePool getServicePool() {
-        return mServicePool;
-    }
-
-    private AnnotationServiceLoader(Class<S> svc) {
-        service = requireNonNull(svc, "Service interface cannot be null");
-        reload();
     }
 
     private static void fail(Class<?> service, String msg, Throwable cause)
@@ -64,20 +61,28 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
         fail(service, u + ":" + line + ": " + msg);
     }
 
+    public S get(String name) throws FetchException {
+        try {
+            init();
+            initMap();
+            Class<? extends S> implClass = classNameMap.get(name);
+            return implClass.newInstance();
+        } catch (Exception e) {
+            throw new FetchException(e);
+        }
+    }
+
     @Override
     public Iterator<S> iterator() {
+        // 延迟初始化
+        init();
         return new Iterator<S>() {
 
-            Iterator<Map.Entry<Class<? extends S>, S>> knownProviders
-                    = providers.entrySet().iterator();
-
             public boolean hasNext() {
-                return knownProviders.hasNext() || lookupIterator.hasNext();
+                return lookupIterator.hasNext();
             }
 
             public S next() {
-                if (knownProviders.hasNext())
-                    return knownProviders.next().getValue();
                 return lookupIterator.next();
             }
 
@@ -88,18 +93,36 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
         };
     }
 
+    private void init() {
+        if (lookupIterator == null) {
+            reload();
+        }
+    }
+
+    private void initMap() {
+        if (classNameMap != null) {
+            return;
+        }
+        classNameMap = new HashMap<>();
+        for (Class<? extends S> impl : classes) {
+            ServiceName annotation = impl.getAnnotation(ServiceName.class);
+            if (annotation != null) {
+                String name = annotation.value();
+                classNameMap.put(name, impl);
+            }
+        }
+    }
+
     // Private inner class implementing fully-lazy provider lookup
     //
     private class LazyIterator
             implements Iterator<S> {
 
         Class<S> service;
-        Collection<Class<S>> classes;
-        Iterator<Class<S>> iterator;
+        Iterator<Class<? extends S>> iterator;
 
-        private LazyIterator(Class<S> service, IServicePool servicePool) {
+        private LazyIterator(Class<S> service) {
             this.service = service;
-            classes = servicePool.getServices(service).provide();
             iterator = classes.iterator();
         }
 
@@ -117,9 +140,7 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
                 //        "Provider " + cn  + " not a subtype");
             }
             try {
-                S p = service.cast(c.newInstance());
-                providers.put(c, p);
-                return p;
+                return service.cast(c.newInstance());
             } catch (Throwable x) {
                 fail(service,
                         "Provider " + c.getName() + " could not be instantiated",
@@ -150,5 +171,10 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
         if (obj == null)
             throw new NullPointerException(message);
         return obj;
+    }
+
+    private IServiceProvider<S> getServiceProvider() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName("com.nd.sdp.android.serviceloader.internal.Provider_" + service.getName().replace(".", "_"));
+        return serviceProviderClass.newInstance();
     }
 }

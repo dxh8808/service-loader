@@ -22,8 +22,8 @@ allprojects {
     if (project != rootProject) {
         project.group = 'com.nd.sdp.android.serviceloader'
         project.version = VERSION_NAME
-        project.ext.mavenUserName = NEXUS_USERNAME
-        project.ext.mavenPassword  = NEXUS_PASSWORD
+        project.ext.mavenUserName = hasProperty("NEXUS_USERNAME") ? NEXUS_USERNAME : ""
+        project.ext.mavenPassword = hasProperty("NEXUS_PASSWORD") ? NEXUS_PASSWORD : ""
     }
 }
 
