@@ -55,13 +55,12 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
         if (roundEnvironment.processingOver()) {
             return true;
         }
-        if (roundEnvironment.getRootElements().size() == 1
-                && roundEnvironment.getRootElements()
+        if (roundEnvironment.getRootElements()
                 .iterator()
                 .next()
                 .getSimpleName()
                 .toString()
-                .contains("ServicePool")) {
+                .contains("Provider_")) {
             return true;
         }
         String resourceFile = "META-INF/services";
@@ -94,7 +93,7 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
         }
         if (!providers.isEmpty()) {
             try {
-                ServicePoolGenerator.write(providers, processingEnv.getFiler(), processingEnv.getElementUtils());
+                ServicePoolGenerator.write(providers, processingEnv);
             } catch (Exception e) {
                 e.printStackTrace();
             }

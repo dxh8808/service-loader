@@ -174,7 +174,8 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
     }
 
     private IServiceProvider<S> getServiceProvider() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        @SuppressWarnings("unchecked") Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName("com.nd.sdp.android.serviceloader.internal.Provider_" + service.getName().replace(".", "_"));
+        String packageName = service.getPackage().getName();
+        @SuppressWarnings("unchecked") Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName(packageName + ".Provider_" + service.getSimpleName());
         return serviceProviderClass.newInstance();
     }
 }
