@@ -70,6 +70,7 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
             @SuppressWarnings("unchecked") Iterable<? extends File> locations = (Iterable<? extends File>) getLocationMethod.invoke(mFileManager, StandardLocation.CLASS_PATH);
             locations.forEach(it -> {
                 try {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, it.getAbsolutePath());
                     JarFile jarFile = new JarFile(it);
                     Stream<JarEntry> stream = jarFile.stream();
                     for (Iterator<JarEntry> i = stream.iterator(); i.hasNext(); ) {
