@@ -2,7 +2,6 @@ package com.nd.sdp.android.serviceloader;
 
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.nd.sdp.android.serviceloader.annotation.ServiceName;
 import com.nd.sdp.android.serviceloader.exception.FetchException;
@@ -16,6 +15,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * AnnotationServiceLoader
@@ -77,7 +78,6 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
 
     @Override
     public Iterator<S> iterator() {
-        // 延迟初始化
         init();
         return new Iterator<S>() {
 
@@ -184,7 +184,8 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
             return serviceProviderClass.newInstance();
         } catch (ClassNotFoundException e) {
 //            e.printStackTrace();
-            Log.e("ServiceLoader", "No Provider for" + service.getSimpleName() + ", Please Check whether annotationProcessor for app used");
+            Logger.getLogger("ServiceLoader")
+                    .log(Level.ALL, "No Provider for" + service.getSimpleName() + ", Please Check whether annotationProcessor for app used");
             return new EmptyServiceProvider<>();
         }
     }
