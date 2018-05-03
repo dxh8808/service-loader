@@ -1,12 +1,15 @@
 package com.nd.sdp.android.serviceloader;
 
 import android.support.annotation.Keep;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.nd.sdp.android.serviceloader.annotation.ServiceName;
 import com.nd.sdp.android.serviceloader.exception.FetchException;
 import com.nd.sdp.android.serviceloader.internal.IServiceProvider;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -173,9 +176,26 @@ public class AnnotationServiceLoader<S> implements ServiceLoader<S> {
         return obj;
     }
 
-    private IServiceProvider<S> getServiceProvider() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String packageName = service.getPackage().getName();
-        @SuppressWarnings("unchecked") Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName(packageName + ".Provider_" + service.getSimpleName());
-        return serviceProviderClass.newInstance();
+    @NonNull
+    private IServiceProvider<S> getServiceProvider() throws IllegalAccessException, InstantiationException {
+        try {
+            String packageName = service.getPackage().getName();
+            @SuppressWarnings("unchecked") Class<IServiceProvider<S>> serviceProviderClass = (Class<IServiceProvider<S>>) Class.forName(packageName + ".Provider_" + service.getSimpleName());
+            return serviceProviderClass.newInstance();
+        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+            Log.e("ServiceLoader", "No Provider for" + service.getSimpleName() + ", Please Check whether annotationProcessor for app used");
+            return new EmptyServiceProvider<>();
+        }
     }
+
+    private static class EmptyServiceProvider<S> implements IServiceProvider<S> {
+
+        @Override
+        public Collection<Class<? extends S>> provide() {
+            return new ArrayList<>();
+        }
+
+    }
+
 }
