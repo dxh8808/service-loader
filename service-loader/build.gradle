@@ -8,3 +8,9 @@ dependencies {
 }
 
 apply from: 'http://git.sdp.nd/common-ui/common-ui-wiki/raw/master/simple-upload.gradle'
+
+
+
+task assembleDebug {
+    println "Place Holder"
+}
