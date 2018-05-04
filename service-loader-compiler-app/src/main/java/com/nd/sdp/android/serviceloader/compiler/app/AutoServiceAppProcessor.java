@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -70,16 +71,18 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
             @SuppressWarnings("unchecked") Iterable<? extends File> locations = (Iterable<? extends File>) getLocationMethod.invoke(mFileManager, StandardLocation.CLASS_PATH);
             locations.forEach(it -> {
                 Stream<JarEntry> stream = null;
+                JarFile jarFile = null;
                 try {
                     log(it.getAbsolutePath());
-                    JarFile jarFile = new JarFile(it);
+                    jarFile = new JarFile(it);
                     stream = jarFile.stream();
                     for (Iterator<JarEntry> i = stream.iterator(); i.hasNext(); ) {
                         JarEntry next = i.next();
                         if (next.getName().startsWith(resourceFile)) {
                             log(it.getAbsolutePath());
                             URL url = new URL("jar:file:" + it.getAbsolutePath() + "!/" + next.getName());
-                            Set<String> serviceFile = ServicesFiles.readServiceFile(url.openStream());
+                            InputStream input = url.openStream();
+                            Set<String> serviceFile = ServicesFiles.readServiceFile(input);
                             for (String impl : serviceFile) {
                                 log(impl);
                                 providers.put(next.getName().substring(next.getName().lastIndexOf("/") + 1), impl);
@@ -91,6 +94,13 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
                 } finally {
                     if (stream != null) {
                         stream.close();
+                    }
+                    if (jarFile != null) {
+                        try {
+                            jarFile.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             });
