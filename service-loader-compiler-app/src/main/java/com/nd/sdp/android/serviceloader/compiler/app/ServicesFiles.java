@@ -78,6 +78,7 @@ final class ServicesFiles {
       throw closer.rethrow(t);
     } finally {
       closer.close();
+      input.close();
     }
   }
 
