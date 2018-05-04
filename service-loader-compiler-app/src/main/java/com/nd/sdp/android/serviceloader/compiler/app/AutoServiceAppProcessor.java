@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -81,7 +82,10 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
                         if (next.getName().startsWith(resourceFile)) {
                             log(it.getAbsolutePath());
                             URL url = new URL("jar:file:" + it.getAbsolutePath() + "!/" + next.getName());
-                            InputStream input = url.openStream();
+                            URLConnection urlConnection = url.openConnection();
+                            urlConnection.setUseCaches(false);
+                            urlConnection.setDefaultUseCaches(false);
+                            InputStream input = urlConnection.getInputStream();
                             Set<String> serviceFile = ServicesFiles.readServiceFile(input);
                             for (String impl : serviceFile) {
                                 log(impl);
