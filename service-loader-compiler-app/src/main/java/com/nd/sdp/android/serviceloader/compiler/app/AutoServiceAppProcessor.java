@@ -69,10 +69,11 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
             getLocationMethod.setAccessible(true);
             @SuppressWarnings("unchecked") Iterable<? extends File> locations = (Iterable<? extends File>) getLocationMethod.invoke(mFileManager, StandardLocation.CLASS_PATH);
             locations.forEach(it -> {
+                Stream<JarEntry> stream = null;
                 try {
                     log(it.getAbsolutePath());
                     JarFile jarFile = new JarFile(it);
-                    Stream<JarEntry> stream = jarFile.stream();
+                    stream = jarFile.stream();
                     for (Iterator<JarEntry> i = stream.iterator(); i.hasNext(); ) {
                         JarEntry next = i.next();
                         if (next.getName().startsWith(resourceFile)) {
@@ -87,6 +88,10 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    if (stream != null) {
+                        stream.close();
+                    }
                 }
             });
         } catch (Exception e) {

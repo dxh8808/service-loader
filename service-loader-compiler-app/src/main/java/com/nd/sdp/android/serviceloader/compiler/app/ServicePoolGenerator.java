@@ -33,6 +33,10 @@ class ServicePoolGenerator {
         Messager messager = processingEnvironment.getMessager();
         for (String service : result.keySet()) {
             TypeElement typeElement = elementUtils.getTypeElement(service);
+            if (typeElement == null) {
+                messager.printMessage(Diagnostic.Kind.WARNING, "Not found " + service);
+                continue;
+            }
             PackageElement packageElement = elementUtils.getPackageOf(typeElement);
             Name packageName = packageElement.getQualifiedName();
             ClassName providerClassName = ClassName.get(packageName.toString(), "Provider_" + typeElement.getSimpleName());
