@@ -34,7 +34,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation project(':sample-module')
     implementation project(':sample-module-2')
-    implementation project(':sample-sdk')
+    api project(':sample-sdk')
     annotationProcessor project(":service-loader-compiler-app")
     implementation project(':service-loader')
 }
