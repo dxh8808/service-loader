@@ -71,6 +71,9 @@ public class AutoServiceAppProcessor extends AbstractProcessor {
             getLocationMethod.setAccessible(true);
             @SuppressWarnings("unchecked") Iterable<? extends File> locations = (Iterable<? extends File>) getLocationMethod.invoke(mFileManager, StandardLocation.CLASS_PATH);
             locations.forEach(it -> {
+                if (!it.exists() || it.isDirectory()) {
+                    return;
+                }
                 Stream<JarEntry> stream = null;
                 JarFile jarFile = null;
                 try {
